@@ -1,0 +1,1248 @@
+import { get, set } from 'idb-keyval';
+import {
+  AppSettings,
+  BoxingWorkout,
+  CompletedBoxingLog,
+  CompletedNutritionLog,
+  CompletedSessionLog,
+  MealSystem,
+  WalkingSession,
+  WorkoutSystem,
+} from './types';
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  userName: 'Osama',
+  weightUnit: 'kg',
+  themeId: 'gold',
+  overloadRepStep: 2,
+  overloadRepCeiling: 12,
+  overloadRepFloor: 8,
+  overloadWeightStep: 2.5,
+  restTimerEnabled: true,
+  defaultRestSeconds: 90,
+  restBetweenSetsSeconds: 90,
+  restBetweenExercisesSeconds: 150,
+  autoStartRestOnCheck: true,
+  soundEnabled: true,
+  vibrateEnabled: true,
+  dailyStepGoal: 10000,
+  dailyWaterGoalMl: 3000,
+};
+
+export const DEFAULT_WORKOUT_SYSTEMS: WorkoutSystem[] = [
+  {
+    id: 'system-aesthetic-4day',
+    name: "Osama's Aesthetic Hypertrophy Split",
+    description: '4-day focused split designed for lean athletic muscle, broad shoulders, and defined arms.',
+    isCurrent: true,
+    createdAt: '2026-10-01',
+    days: [
+      {
+        id: 'day-push',
+        title: 'Day 1: Chest & Back Session',
+        description: 'Upper, Mid & Inner Chest + Lat Width, Mid-Back & Upper Back/Rhomboids',
+        order: 1,
+        exercises: [
+          {
+            id: 'ex-incline-db-press',
+            name: 'Incline Dumbbell Press',
+            category: 'chest',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 24,
+            notes: 'Target: Upper Chest • Grip: Neutral to 45-degree pronated grip (palms facing slightly inward/forward)',
+            sets: [
+              { id: 'set-idp-1', setNumber: 1, weight: 24, reps: 10, completed: false },
+              { id: 'set-idp-2', setNumber: 2, weight: 24, reps: 10, completed: false },
+              { id: 'set-idp-3', setNumber: 3, weight: 24, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-flat-bench-press',
+            name: 'Flat Bench Press',
+            category: 'chest',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 60,
+            notes: 'Target: Mid Chest / Overall Mass • Grip: Pronated grip (overhand, slightly wider than shoulder-width)',
+            sets: [
+              { id: 'set-fbp-1', setNumber: 1, weight: 60, reps: 10, completed: false },
+              { id: 'set-fbp-2', setNumber: 2, weight: 60, reps: 10, completed: false },
+              { id: 'set-fbp-3', setNumber: 3, weight: 60, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-pec-deck',
+            name: 'Butterfly Machine (Pec Deck)',
+            category: 'chest',
+            targetSets: 3,
+            targetReps: 12,
+            defaultWeight: 45,
+            notes: 'Target: Inner Chest / Isolation • Grip: Neutral grip / forearm pads (elbows bent at 90 degrees, palms facing inward)',
+            sets: [
+              { id: 'set-pd-1', setNumber: 1, weight: 45, reps: 12, completed: false },
+              { id: 'set-pd-2', setNumber: 2, weight: 45, reps: 12, completed: false },
+              { id: 'set-pd-3', setNumber: 3, weight: 45, reps: 12, completed: false },
+            ],
+          },
+          {
+            id: 'ex-lat-pulldown-cb',
+            name: 'Lat Pulldown',
+            category: 'back',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 55,
+            notes: 'Target: Lat Width • Grip: Medium overhand grip (standard shoulder-width or slightly wider)',
+            sets: [
+              { id: 'set-lpcb-1', setNumber: 1, weight: 55, reps: 10, completed: false },
+              { id: 'set-lpcb-2', setNumber: 2, weight: 55, reps: 10, completed: false },
+              { id: 'set-lpcb-3', setNumber: 3, weight: 55, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-seated-cable-row-close',
+            name: 'Seated Cable Row (Close Grip)',
+            category: 'back',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 50,
+            notes: 'Target: Mid-Back Thickness • Grip: Neutral grip (palms facing each other using a close V-bar / parallel handle)',
+            sets: [
+              { id: 'set-scrc-1', setNumber: 1, weight: 50, reps: 10, completed: false },
+              { id: 'set-scrc-2', setNumber: 2, weight: 50, reps: 10, completed: false },
+              { id: 'set-scrc-3', setNumber: 3, weight: 50, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-seated-cable-row-wide',
+            name: 'Seated Cable Row (Wide Grip)',
+            category: 'back',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 45,
+            notes: 'Target: Upper Back & Rhomboids (Lower-back safe alternative to T-bar rows) • Grip: Pronated overhand grip (using a wide bar, pulling high toward the upper chest)',
+            sets: [
+              { id: 'set-scrw-1', setNumber: 1, weight: 45, reps: 10, completed: false },
+              { id: 'set-scrw-2', setNumber: 2, weight: 45, reps: 10, completed: false },
+              { id: 'set-scrw-3', setNumber: 3, weight: 45, reps: 10, completed: false },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'day-pull',
+        title: 'Day 2: Arms & Shoulders Session',
+        description: 'Shoulders (Front, Lateral, Rear Delts) + Biceps & Triceps (Short/Long Heads & Brachialis)',
+        order: 2,
+        exercises: [
+          {
+            id: 'ex-machine-shoulder-press',
+            name: 'Machine Shoulder Press',
+            category: 'shoulders',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 35,
+            notes: 'Target: Front Delts & Upper Chest • Grip: Neutral to 45-degree pronated grip (palms facing forward/slightly inward)',
+            sets: [
+              { id: 'set-msp-1', setNumber: 1, weight: 35, reps: 10, completed: false },
+              { id: 'set-msp-2', setNumber: 2, weight: 35, reps: 10, completed: false },
+              { id: 'set-msp-3', setNumber: 3, weight: 35, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-lateral-raises',
+            name: 'Dumbbell or Cable Lateral Raises',
+            category: 'shoulders',
+            targetSets: 4,
+            targetReps: 12,
+            defaultWeight: 10,
+            notes: 'Target: Side (Lateral) Delts • Grip: Neutral grip (lead with elbows, palms facing down at the top)',
+            sets: [
+              { id: 'set-lr2-1', setNumber: 1, weight: 10, reps: 12, completed: false },
+              { id: 'set-lr2-2', setNumber: 2, weight: 10, reps: 12, completed: false },
+              { id: 'set-lr2-3', setNumber: 3, weight: 10, reps: 12, completed: false },
+              { id: 'set-lr2-4', setNumber: 4, weight: 10, reps: 12, completed: false },
+            ],
+          },
+          {
+            id: 'ex-reverse-pec-deck',
+            name: 'Reverse Pec Deck (or Cable Rear Delt Flyes)',
+            category: 'shoulders',
+            targetSets: 3,
+            targetReps: 12,
+            defaultWeight: 30,
+            notes: 'Target: Rear Delts • Grip: Pronated overhand grip (palms facing down/inward, driving back with elbows)',
+            sets: [
+              { id: 'set-rpd-1', setNumber: 1, weight: 30, reps: 12, completed: false },
+              { id: 'set-rpd-2', setNumber: 2, weight: 30, reps: 12, completed: false },
+              { id: 'set-rpd-3', setNumber: 3, weight: 30, reps: 12, completed: false },
+            ],
+          },
+          {
+            id: 'ex-cable-preacher-curl',
+            name: 'Cable Preacher Curls (EZ / Zigzag Bar)',
+            category: 'arms',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 20,
+            notes: 'Target: Bicep Short Head & Overall Peak • Grip: Underhand supinated grip on the angled curves of the bar',
+            sets: [
+              { id: 'set-cpc-1', setNumber: 1, weight: 20, reps: 10, completed: false },
+              { id: 'set-cpc-2', setNumber: 2, weight: 20, reps: 10, completed: false },
+              { id: 'set-cpc-3', setNumber: 3, weight: 20, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-rope-cable-curls',
+            name: 'Rope Cable Curls',
+            category: 'arms',
+            targetSets: 3,
+            targetReps: 12,
+            defaultWeight: 17.5,
+            notes: 'Target: Brachialis & Forearm Thickness • Grip: Neutral grip (palms facing each other, flaring slightly out at the top)',
+            sets: [
+              { id: 'set-rcc-1', setNumber: 1, weight: 17.5, reps: 12, completed: false },
+              { id: 'set-rcc-2', setNumber: 2, weight: 17.5, reps: 12, completed: false },
+              { id: 'set-rcc-3', setNumber: 3, weight: 17.5, reps: 12, completed: false },
+            ],
+          },
+          {
+            id: 'ex-rope-tricep-pushdown',
+            name: 'Rope Cable Tricep Pushdowns',
+            category: 'arms',
+            targetSets: 3,
+            targetReps: 12,
+            defaultWeight: 20,
+            notes: 'Target: Lateral & Medial Heads • Grip: Neutral grip on the rope, locking out and pulling hands apart at the bottom',
+            sets: [
+              { id: 'set-rtp-1', setNumber: 1, weight: 20, reps: 12, completed: false },
+              { id: 'set-rtp-2', setNumber: 2, weight: 20, reps: 12, completed: false },
+              { id: 'set-rtp-3', setNumber: 3, weight: 20, reps: 12, completed: false },
+            ],
+          },
+          {
+            id: 'ex-overhead-cable-tricep-ext',
+            name: 'Overhead Cable Tricep Extensions (Rope or Bar)',
+            category: 'arms',
+            targetSets: 3,
+            targetReps: 12,
+            defaultWeight: 17.5,
+            notes: 'Target: Tricep Long Head (Back of the arm) • Grip: Neutral grip (rope) or overhand grip (bar), pulling overhead with elbows tucked in',
+            sets: [
+              { id: 'set-octe-1', setNumber: 1, weight: 17.5, reps: 12, completed: false },
+              { id: 'set-octe-2', setNumber: 2, weight: 17.5, reps: 12, completed: false },
+              { id: 'set-octe-3', setNumber: 3, weight: 17.5, reps: 12, completed: false },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'day-legs',
+        title: 'Day 3: Legs & Abs',
+        description: 'Quad Isolation & Mass, Hamstring Development, Soleus Calves & Complete Core Routine',
+        order: 3,
+        exercises: [
+          {
+            id: 'ex-leg-extensions',
+            name: 'Leg Extensions',
+            category: 'legs',
+            targetSets: 3,
+            targetReps: 12,
+            defaultWeight: 45,
+            notes: 'Target: Quad Isolation / Warm-up • Position: Pad on lower shins, toes pointing straight ahead',
+            sets: [
+              { id: 'set-le-1', setNumber: 1, weight: 45, reps: 12, completed: false },
+              { id: 'set-le-2', setNumber: 2, weight: 45, reps: 12, completed: false },
+              { id: 'set-le-3', setNumber: 3, weight: 45, reps: 12, completed: false },
+            ],
+          },
+          {
+            id: 'ex-leg-press',
+            name: 'Leg Press',
+            category: 'legs',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 120,
+            notes: 'Target: Overall Quads & Glutes • Position: Foot placement shoulder-width on middle of footplate',
+            sets: [
+              { id: 'set-lp-1', setNumber: 1, weight: 120, reps: 10, completed: false },
+              { id: 'set-lp-2', setNumber: 2, weight: 120, reps: 10, completed: false },
+              { id: 'set-lp-3', setNumber: 3, weight: 120, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-lying-leg-curls',
+            name: 'Lying Leg Curls',
+            category: 'legs',
+            targetSets: 3,
+            targetReps: 12,
+            defaultWeight: 40,
+            notes: 'Target: Hamstrings (Biceps Femoris) • Position: Pad on lower calves/Achilles, hips pinned to bench',
+            sets: [
+              { id: 'set-llc-1', setNumber: 1, weight: 40, reps: 12, completed: false },
+              { id: 'set-llc-2', setNumber: 2, weight: 40, reps: 12, completed: false },
+              { id: 'set-llc-3', setNumber: 3, weight: 40, reps: 12, completed: false },
+            ],
+          },
+          {
+            id: 'ex-barbell-rdl',
+            name: 'Barbell Romanian Deadlifts (RDLs)',
+            category: 'legs',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 60,
+            notes: 'Target: Hamstrings & Glute Tie-in • Grip: Pronated overhand grip (slightly wider than shoulder-width)',
+            sets: [
+              { id: 'set-brdl-1', setNumber: 1, weight: 60, reps: 10, completed: false },
+              { id: 'set-brdl-2', setNumber: 2, weight: 60, reps: 10, completed: false },
+              { id: 'set-brdl-3', setNumber: 3, weight: 60, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-seated-calf-raise',
+            name: 'Seated Calf Raise',
+            category: 'legs',
+            targetSets: 4,
+            targetReps: 15,
+            defaultWeight: 35,
+            notes: 'Target: Soleus / Calf Thickness • Position: Pad secured over lower thighs/knees, balls of feet on platform',
+            sets: [
+              { id: 'set-scr-1', setNumber: 1, weight: 35, reps: 15, completed: false },
+              { id: 'set-scr-2', setNumber: 2, weight: 35, reps: 15, completed: false },
+              { id: 'set-scr-3', setNumber: 3, weight: 35, reps: 15, completed: false },
+              { id: 'set-scr-4', setNumber: 4, weight: 35, reps: 15, completed: false },
+            ],
+          },
+          {
+            id: 'ex-seated-cable-crunches',
+            name: 'Seated Cable Crunches',
+            category: 'core',
+            targetSets: 3,
+            targetReps: 15,
+            defaultWeight: 30,
+            notes: 'Target: Upper & Mid Abs • Grip: Neutral grip holding rope at ears while seated on bench/chair',
+            sets: [
+              { id: 'set-scc-1', setNumber: 1, weight: 30, reps: 15, completed: false },
+              { id: 'set-scc-2', setNumber: 2, weight: 30, reps: 15, completed: false },
+              { id: 'set-scc-3', setNumber: 3, weight: 30, reps: 15, completed: false },
+            ],
+          },
+          {
+            id: 'ex-weighted-crunches-chair',
+            name: 'Weighted Crunches on the Chair',
+            category: 'core',
+            targetSets: 3,
+            targetReps: 15,
+            defaultWeight: 10,
+            notes: 'Target: Core Mass & Upper Abs • Position: Holding weight plate flat across your chest on the decline bench/chair',
+            sets: [
+              { id: 'set-wcc-1', setNumber: 1, weight: 10, reps: 15, completed: false },
+              { id: 'set-wcc-2', setNumber: 2, weight: 10, reps: 15, completed: false },
+              { id: 'set-wcc-3', setNumber: 3, weight: 10, reps: 15, completed: false },
+            ],
+          },
+          {
+            id: 'ex-leg-raises',
+            name: 'Leg Raises',
+            category: 'core',
+            targetSets: 3,
+            targetReps: 15,
+            defaultWeight: 0,
+            notes: "Target: Lower Abs • Grip: Forearms supported on Captain's Chair pads or hanging overhand grip",
+            sets: [
+              { id: 'set-lr-1', setNumber: 1, weight: 0, reps: 15, completed: false },
+              { id: 'set-lr-2', setNumber: 2, weight: 0, reps: 15, completed: false },
+              { id: 'set-lr-3', setNumber: 3, weight: 0, reps: 15, completed: false },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'day-arms-abs',
+        title: 'Day 4: Chest & Back (Wednesday Session)',
+        description: 'Strict 3-second negative phase on presses/rows with 1-second pause at deep stretch / peak squeeze',
+        order: 4,
+        exercises: [
+          {
+            id: 'ex-d4-incline-db-press',
+            name: 'Incline Dumbbell Press',
+            category: 'chest',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 22,
+            notes: 'Target: Upper Chest • Grip/Setup: Neutral to 45-degree pronated grip • Execution Cue: 3-second slow descent, light pause at the bottom stretch.',
+            sets: [
+              { id: 'set-d4-idp-1', setNumber: 1, weight: 22, reps: 10, completed: false },
+              { id: 'set-d4-idp-2', setNumber: 2, weight: 22, reps: 10, completed: false },
+              { id: 'set-d4-idp-3', setNumber: 3, weight: 22, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-d4-lat-pulldown',
+            name: 'Lat Pulldown',
+            category: 'back',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 50,
+            notes: 'Target: Lat Width • Grip/Setup: Medium overhand grip • Execution Cue: Pull down to upper chest, control the weight back up slowly.',
+            sets: [
+              { id: 'set-d4-lp-1', setNumber: 1, weight: 50, reps: 10, completed: false },
+              { id: 'set-d4-lp-2', setNumber: 2, weight: 50, reps: 10, completed: false },
+              { id: 'set-d4-lp-3', setNumber: 3, weight: 50, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-d4-flat-bench-press',
+            name: 'Flat Bench Press',
+            category: 'chest',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 50,
+            notes: 'Target: Mid Chest / Overall Mass • Grip/Setup: Pronated overhand grip • Execution Cue: Elbows tucked at 45 degrees, controlled touch on the chest.',
+            sets: [
+              { id: 'set-d4-fbp-1', setNumber: 1, weight: 50, reps: 10, completed: false },
+              { id: 'set-d4-fbp-2', setNumber: 2, weight: 50, reps: 10, completed: false },
+              { id: 'set-d4-fbp-3', setNumber: 3, weight: 50, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-d4-cable-row-close',
+            name: 'Seated Cable Row (Close Grip)',
+            category: 'back',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 45,
+            notes: 'Target: Mid-Back Thickness • Grip/Setup: Neutral grip (V-bar) • Execution Cue: Keep torso stable, squeeze shoulder blades together at the back.',
+            sets: [
+              { id: 'set-d4-src-1', setNumber: 1, weight: 45, reps: 10, completed: false },
+              { id: 'set-d4-src-2', setNumber: 2, weight: 45, reps: 10, completed: false },
+              { id: 'set-d4-src-3', setNumber: 3, weight: 45, reps: 10, completed: false },
+            ],
+          },
+          {
+            id: 'ex-d4-pec-deck',
+            name: 'Butterfly Machine (Pec Deck)',
+            category: 'chest',
+            targetSets: 3,
+            targetReps: 12,
+            defaultWeight: 40,
+            notes: 'Target: Inner Chest / Isolation • Grip/Setup: Neutral grip / forearm pads • Execution Cue: Hold the squeezed contraction in the center for a full second.',
+            sets: [
+              { id: 'set-d4-bm-1', setNumber: 1, weight: 40, reps: 12, completed: false },
+              { id: 'set-d4-bm-2', setNumber: 2, weight: 40, reps: 12, completed: false },
+              { id: 'set-d4-bm-3', setNumber: 3, weight: 40, reps: 12, completed: false },
+            ],
+          },
+          {
+            id: 'ex-d4-cable-row-wide',
+            name: 'Seated Cable Row (Wide Grip)',
+            category: 'back',
+            targetSets: 3,
+            targetReps: 12,
+            defaultWeight: 40,
+            notes: 'Target: Upper Back & Rhomboids • Grip/Setup: Wide pronated overhand grip • Execution Cue: Flare elbows slightly higher to target the upper back and rear delts.',
+            sets: [
+              { id: 'set-d4-srw-1', setNumber: 1, weight: 40, reps: 12, completed: false },
+              { id: 'set-d4-srw-2', setNumber: 2, weight: 40, reps: 12, completed: false },
+              { id: 'set-d4-srw-3', setNumber: 3, weight: 40, reps: 12, completed: false },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'system-ppl-3day',
+    name: 'Classic Push / Pull / Legs (PPL)',
+    description: 'Timeless 3-day foundation split that cycles through push, pull, and leg muscles.',
+    isCurrent: false,
+    createdAt: '2026-10-01',
+    days: [
+      {
+        id: 'day-ppl-push',
+        title: 'Push Day (Chest, Shoulders, Triceps)',
+        order: 1,
+        exercises: [
+          {
+            id: 'ex-flat-press',
+            name: 'Dumbbell Flat Bench Press',
+            category: 'chest',
+            targetSets: 3,
+            targetReps: 10,
+            defaultWeight: 28,
+            sets: [
+              { id: 'set-p1', setNumber: 1, weight: 28, reps: 10, completed: false },
+              { id: 'set-p2', setNumber: 2, weight: 28, reps: 10, completed: false },
+              { id: 'set-p3', setNumber: 3, weight: 28, reps: 10, completed: false },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+import { DEFAULT_MEAL_SYSTEMS } from './default-meals';
+export { DEFAULT_MEAL_SYSTEMS };
+
+export const DEFAULT_WALKING_SESSIONS: WalkingSession[] = [
+  {
+    id: 'walk-1',
+    date: '2026-10-05',
+    time: '07:45 AM',
+    label: 'Morning Sunlight Walk',
+    durationMinutes: 25,
+    steps: 2900,
+    distanceKm: 2.1,
+    notes: 'A brisk outdoor walk to clear mind and wake up.',
+  },
+  {
+    id: 'walk-2',
+    date: '2026-10-05',
+    time: '01:45 PM',
+    label: 'Post-Lunch Digestion Stroll',
+    durationMinutes: 15,
+    steps: 1750,
+    distanceKm: 1.2,
+    notes: 'Low intensity walk after meal 2 for blood glucose control.',
+  },
+];
+
+export const DEFAULT_WORKOUT_LOGS: CompletedSessionLog[] = [
+  {
+    id: 'log-sample-1',
+    systemId: 'system-aesthetic-4day',
+    systemName: "Osama's Aesthetic Hypertrophy Split",
+    dayId: 'day-push',
+    dayTitle: 'Day 1: Chest, Shoulders & Triceps (Push)',
+    completedAt: '2026-10-03T18:30:00.000Z',
+    durationMinutes: 52,
+    totalVolume: 4890,
+    totalSetsCompleted: 13,
+    totalRepsCompleted: 134,
+    exercises: [
+      {
+        exerciseId: 'ex-incline-db',
+        exerciseName: 'Incline Dumbbell Bench Press',
+        category: 'chest',
+        sets: [
+          { setNumber: 1, weight: 26, reps: 10, completed: true },
+          { setNumber: 2, weight: 26, reps: 10, completed: true },
+          { setNumber: 3, weight: 26, reps: 10, completed: true },
+        ],
+      },
+      {
+        exerciseId: 'ex-lat-raise',
+        exerciseName: 'Cable Lateral Raise',
+        category: 'shoulders',
+        sets: [
+          { setNumber: 1, weight: 7.5, reps: 12, completed: true },
+          { setNumber: 2, weight: 7.5, reps: 12, completed: true },
+          { setNumber: 3, weight: 7.5, reps: 12, completed: true },
+          { setNumber: 4, weight: 7.5, reps: 10, completed: true },
+        ],
+      },
+    ],
+    userNotes: 'Felt great energy. Cable laterals were burning. Ready to up weights next time.',
+    overloadNotes: ['Incline DB: 26kg hit 10 reps across all sets. Ready for +2.5kg!'],
+  },
+];
+
+export const DEFAULT_BOXING_WORKOUTS: BoxingWorkout[] = [
+  {
+    id: 'boxing-solo-bag-footwork',
+    name: 'Friday Workout Plan (Solo Sandbag & Core)',
+    description: 'Rule: Work hard for 3 minutes → Rest for 1 minute after every round. Warm-up (2 rounds), Sandbag Boxing (6 power rounds), and Core Finisher (3 rounds non-stop).',
+    mode: 'solo',
+    defaultRoundSeconds: 180,
+    defaultRestSeconds: 60,
+    drills: [
+      {
+        id: 'bdrill-fri-1',
+        name: 'Part 1: Warm-Up — Jump Rope (Boxer Skip)',
+        category: 'warmup',
+        mode: 'solo',
+        roundDurationSeconds: 180,
+        restSeconds: 60,
+        intensity: 'fast',
+        comboOrCues: 'Jump over the rope, switching lightly from one foot to the other on your toes → Last 30 seconds of each round: Jump as fast as you can.',
+        partnerAlternativeName: 'Partner Mirror Footwork & Tag Warmup',
+        partnerAlternativeCues: 'Mirror partner movement with light foot-to-foot skipping without getting touched.',
+        notes: 'Stay light on the balls of your feet, relax your shoulders, rotate the rope with your wrists.',
+        rounds: [
+          {
+            id: 'br-fri-1-1',
+            roundNumber: 1,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'R1: Light boxer skip switching foot-to-foot on toes → Last 30s: Jump as fast as you can!',
+          },
+          {
+            id: 'br-fri-1-2',
+            roundNumber: 2,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'R2: Rhythm boxer skip on toes → Last 30s: Maximum speed sprint!',
+          },
+        ],
+      },
+      {
+        id: 'bdrill-fri-2',
+        name: 'Part 2: Sandbag Boxing (6 Power Rounds)',
+        category: 'bagwork',
+        mode: 'solo',
+        roundDurationSeconds: 180,
+        restSeconds: 60,
+        intensity: 'power',
+        comboOrCues: 'R1: Jab & Straight Power | R2: Power Hooks | R3: Body & Head Levels | R4: Speed Burnout | R5: Knees & Power | R6: Final Output',
+        partnerAlternativeName: 'Focus Mitts: Power Combos & Counters',
+        partnerAlternativeCues: 'Partner holds pads for 1-2 power, hooks, body-head changes, and burnout combos.',
+        notes: 'Work hard for 3 minutes → Rest for 1 minute after every round. Pivot hard and drive through hips.',
+        rounds: [
+          {
+            id: 'br-fri-2-1',
+            roundNumber: 1,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'Round 1 (Jab & Straight Power): Throw fast jabs with front hand → Throw hard straight crosses using back foot and hip rotation.',
+          },
+          {
+            id: 'br-fri-2-2',
+            roundNumber: 2,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'Round 2 (Power Hooks): Throw wide hook punches at sides of bag → Pivot front foot hard → Punch straight through the bag.',
+          },
+          {
+            id: 'br-fri-2-3',
+            roundNumber: 3,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'Round 3 (Body & Head Levels): Throw jab to face → Throw hard hook to body → Finish with straight cross to head.',
+          },
+          {
+            id: 'br-fri-2-4',
+            roundNumber: 4,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'Round 4 (Speed Burnout): First 20s: Straight punches as fast as arms move → Next 40s: Heavy single power punches (repeat cycle).',
+          },
+          {
+            id: 'br-fri-2-5',
+            roundNumber: 5,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'Round 5 (Knees & Power): Grab top straps of bag, pull down → Drive heavy knee strikes into bag mixed with power punches.',
+          },
+          {
+            id: 'br-fri-2-6',
+            roundNumber: 6,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'Round 6 (Final Output): Mix all punches (jabs, crosses, hooks, power) at high speed → Empty your tank until time is up!',
+          },
+        ],
+      },
+      {
+        id: 'bdrill-fri-3',
+        name: 'Part 3: Core Finisher (4-Exercise Circuit)',
+        category: 'conditioning',
+        mode: 'solo',
+        roundDurationSeconds: 180,
+        restSeconds: 60,
+        intensity: 'conditioning',
+        comboOrCues: '45s Standard Crunches → 45s Toe-Touch Crunches → 45s Full Sit-Ups → 45s Bicycle Crunches (3 min non-stop). Rest 1 min, repeat for 3 rounds.',
+        partnerAlternativeName: 'Medicine Ball Partner Core Circuit',
+        partnerAlternativeCues: 'Partner med-ball sit-ups and rotational passes with 1 min rest between rounds.',
+        notes: 'Exercise 1 → 2 → 3 → 4 back-to-back with zero rest. 1) Standard Crunches: knees bent, squeeze upper abs, 1s squeeze at top. 2) Toe-Touches: legs vertical, reach for toes. 3) Full Sit-Ups: chest to knees, roll down slowly. 4) Bicycle Crunches: elbow to opposite knee continuous cycling.',
+        rounds: [
+          {
+            id: 'br-fri-3-1',
+            roundNumber: 1,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'Round 1: 45s Standard Crunches → 45s Toe-Touch Crunches → 45s Full Sit-Ups → 45s Bicycle Crunches (0s rest)',
+          },
+          {
+            id: 'br-fri-3-2',
+            roundNumber: 2,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'Round 2: 45s Standard Crunches → 45s Toe-Touch Crunches → 45s Full Sit-Ups → 45s Bicycle Crunches (0s rest)',
+          },
+          {
+            id: 'br-fri-3-3',
+            roundNumber: 3,
+            durationSeconds: 180,
+            restSeconds: 60,
+            completed: false,
+            focusCombo: 'Round 3: 45s Standard Crunches → 45s Toe-Touch Crunches → 45s Full Sit-Ups → 45s Bicycle Crunches (Final Burnout)',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'boxing-partner-pads-drills',
+    name: 'Partner Pads, Counter Drills & Technical Spar',
+    description: 'Complete 2-person boxing session when training with a partner: mirror footwork, pad work combos, Dutch glove-to-glove drills, and controlled sparring.',
+    mode: 'partner',
+    defaultRoundSeconds: 180,
+    defaultRestSeconds: 60,
+    drills: [
+      {
+        id: 'bdrill-p1',
+        name: 'Partner Distance Control & Mirror Footwork',
+        category: 'footwork',
+        mode: 'partner',
+        roundDurationSeconds: 180,
+        restSeconds: 60,
+        intensity: 'technical',
+        comboOrCues: 'Partner leads steps forward/back/lateral → Maintain exact 1-step fighting range without crossing feet.',
+        partnerAlternativeName: 'Solo Cone / Line Agility Footwork',
+        partnerAlternativeCues: 'In-and-out pendulum step + L-step pivots & angle cuts around center line.',
+        rounds: [
+          { id: 'br-p1-1', roundNumber: 1, durationSeconds: 180, restSeconds: 60, completed: false },
+          { id: 'br-p1-2', roundNumber: 2, durationSeconds: 180, restSeconds: 60, completed: false },
+        ],
+      },
+      {
+        id: 'bdrill-p2',
+        name: 'Pad / Mitt Work: Sharp Combos & Defense',
+        category: 'padwork',
+        mode: 'partner',
+        roundDurationSeconds: 180,
+        restSeconds: 60,
+        intensity: 'fast',
+        comboOrCues: '1-2-Slip-2-3-2 | Catch partner jab → return 2-3-2 | Pull-counter 2 on partner feint',
+        partnerAlternativeName: 'Heavy Bag: Pull-Counter & Combo Flow',
+        partnerAlternativeCues: 'Use bag swing to time pull-2-3-2 and slip-rip body combinations.',
+        notes: 'Hit the center of the mitts with snap, not pushing.',
+        rounds: [
+          { id: 'br-p2-1', roundNumber: 1, durationSeconds: 180, restSeconds: 60, completed: false },
+          { id: 'br-p2-2', roundNumber: 2, durationSeconds: 180, restSeconds: 60, completed: false },
+          { id: 'br-p2-3', roundNumber: 3, durationSeconds: 180, restSeconds: 60, completed: false },
+          { id: 'br-p2-4', roundNumber: 4, durationSeconds: 180, restSeconds: 60, completed: false },
+        ],
+      },
+      {
+        id: 'bdrill-p3',
+        name: 'Glove-to-Glove Partner Counter Drills (Dutch Style)',
+        category: 'partner-drill',
+        mode: 'partner',
+        roundDurationSeconds: 180,
+        restSeconds: 60,
+        intensity: 'technical',
+        comboOrCues: 'A throws 1-2-3 to guard → B blocks & immediately fires 2-3-2 back → A rolls under & counters 3-2.',
+        partnerAlternativeName: 'Double-End Bag / Reflex Defense Drill',
+        partnerAlternativeCues: 'High guard tight blocks + 3-punch rapid combinations with head off-line.',
+        notes: 'Keep tight high guard and eyes open when absorbing on the gloves.',
+        rounds: [
+          { id: 'br-p3-1', roundNumber: 1, durationSeconds: 180, restSeconds: 60, completed: false },
+          { id: 'br-p3-2', roundNumber: 2, durationSeconds: 180, restSeconds: 60, completed: false },
+          { id: 'br-p3-3', roundNumber: 3, durationSeconds: 180, restSeconds: 60, completed: false },
+          { id: 'br-p3-4', roundNumber: 4, durationSeconds: 180, restSeconds: 60, completed: false },
+        ],
+      },
+      {
+        id: 'bdrill-p4',
+        name: 'Technical / Controlled Sparring',
+        category: 'sparring',
+        mode: 'partner',
+        roundDurationSeconds: 180,
+        restSeconds: 60,
+        intensity: 'technical',
+        comboOrCues: 'R1: Lead hand (Jab/Lead Hook) only | R2-R3: Open technical sparring at 50% power, 100% speed & IQ',
+        partnerAlternativeName: 'High-Pace Visualization Shadowboxing',
+        partnerAlternativeCues: '3 rounds championship pace: feints, level changes, check hooks, and ring generalship.',
+        rounds: [
+          { id: 'br-p4-1', roundNumber: 1, durationSeconds: 180, restSeconds: 60, completed: false },
+          { id: 'br-p4-2', roundNumber: 2, durationSeconds: 180, restSeconds: 60, completed: false },
+          { id: 'br-p4-3', roundNumber: 3, durationSeconds: 180, restSeconds: 60, completed: false },
+        ],
+      },
+    ],
+  },
+];
+
+export const DEFAULT_BOXING_LOGS: CompletedBoxingLog[] = [
+  {
+    id: 'boxing-log-sample-1',
+    workoutId: 'boxing-solo-bag-footwork',
+    workoutName: 'Solo Heavy Bag & Sharp Footwork',
+    mode: 'solo',
+    completedAt: '2026-10-04T19:15:00.000Z',
+    durationMinutes: 48,
+    totalRoundsCompleted: 13,
+    totalDrillsCompleted: 4,
+    drills: [
+      {
+        drillId: 'bdrill-1',
+        drillName: 'Boxer Skip & Rhythm Jump Rope',
+        category: 'warmup',
+        mode: 'solo',
+        roundsCompleted: 3,
+        totalRounds: 3,
+        roundDurationSeconds: 180,
+        comboOrCues: 'R1: Basic boxer step | R2: High knees + double-unders',
+      },
+      {
+        drillId: 'bdrill-3',
+        drillName: 'Heavy Bag: Outside-to-Inside Combinations',
+        category: 'bagwork',
+        mode: 'solo',
+        roundsCompleted: 4,
+        totalRounds: 4,
+        roundDurationSeconds: 180,
+        comboOrCues: '1-2-3(body)-3(head)-2',
+      },
+    ],
+    userNotes: 'Trained solo today. Left hook to the body felt super crisp on the heavy bag.',
+  },
+];
+
+export const DEFAULT_NUTRITION_LOGS: CompletedNutritionLog[] = [];
+
+// In-Memory Fast Cache with IndexedDB + LocalStorage Sync
+class LocalGymDatabase {
+  private isBrowser = typeof window !== 'undefined';
+
+  async loadSettings(): Promise<AppSettings> {
+    if (!this.isBrowser) return DEFAULT_SETTINGS;
+    try {
+      const idbVal = await get<AppSettings>('osama_app_settings');
+      if (idbVal) return { ...DEFAULT_SETTINGS, ...idbVal };
+
+      const lsVal = localStorage.getItem('osama_app_settings');
+      if (lsVal) {
+        const parsed = JSON.parse(lsVal);
+        return { ...DEFAULT_SETTINGS, ...parsed };
+      }
+    } catch (e) {
+      console.warn('Error reading settings from storage', e);
+    }
+    return DEFAULT_SETTINGS;
+  }
+
+  async saveSettings(settings: AppSettings): Promise<void> {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem('osama_app_settings', JSON.stringify(settings));
+      await set('osama_app_settings', settings);
+    } catch (e) {
+      console.warn('Error saving settings to storage', e);
+    }
+  }
+
+  private normalizeWorkoutSystems(systems: WorkoutSystem[]): WorkoutSystem[] {
+    return systems.map((sys) => ({
+      ...sys,
+      days: sys.days.map((day) => ({
+        ...day,
+        exercises: day.exercises.map((ex) => {
+          const baseWeight = ex.sets[0]?.weight ?? ex.defaultWeight ?? 20;
+          const baseReps = ex.sets[0]?.reps ?? ex.targetReps ?? 10;
+          return {
+            ...ex,
+            defaultWeight: baseWeight,
+            targetReps: baseReps,
+            sets: ex.sets.map((s) => ({
+              ...s,
+              weight: baseWeight,
+              reps: baseReps,
+            })),
+          };
+        }),
+      })),
+    }));
+  }
+
+  private normalizeBoxingWorkouts(workouts: BoxingWorkout[]): BoxingWorkout[] {
+    return workouts.map((w) => ({
+      ...w,
+      drills: w.drills.map((d) => {
+        const roundSec = d.roundDurationSeconds || d.rounds[0]?.durationSeconds || 180;
+        const restSec = d.restSeconds || d.rounds[0]?.restSeconds || 60;
+        return {
+          ...d,
+          roundDurationSeconds: roundSec,
+          restSeconds: restSec,
+          rounds: d.rounds.map((r) => ({
+            ...r,
+            durationSeconds: roundSec,
+            restSeconds: restSec,
+          })),
+        };
+      }),
+    }));
+  }
+
+  private migrateBoxingWorkoutsIfNeeded(workouts: BoxingWorkout[]): { workouts: BoxingWorkout[]; migrated: boolean } {
+    let migrated = false;
+    const defaultSolo = DEFAULT_BOXING_WORKOUTS[0];
+    const updated = workouts.map((w) => {
+      if (
+        w.id === 'boxing-solo-bag-footwork' &&
+        (w.name === 'Solo Heavy Bag & Sharp Footwork' || !w.name.includes('Friday'))
+      ) {
+        migrated = true;
+        return defaultSolo;
+      }
+      return w;
+    });
+    return { workouts: updated, migrated };
+  }
+
+  private migrateDaysIfNeeded(systems: WorkoutSystem[]): { systems: WorkoutSystem[]; migrated: boolean } {
+    let migrated = false;
+    const defaultDayOne = DEFAULT_WORKOUT_SYSTEMS[0].days[0];
+    const defaultDayTwo = DEFAULT_WORKOUT_SYSTEMS[0].days[1];
+    const defaultDayThree = DEFAULT_WORKOUT_SYSTEMS[0].days[2];
+    const defaultDayFour = DEFAULT_WORKOUT_SYSTEMS[0].days[3];
+    const updated = systems.map((sys) => {
+      if (sys.id !== 'system-aesthetic-4day') return sys;
+      return {
+        ...sys,
+        days: sys.days.map((day, idx) => {
+          if (
+            (day.id === 'day-push' || idx === 0) &&
+            day.title === 'Day 1: Chest, Shoulders & Triceps (Push)'
+          ) {
+            migrated = true;
+            return defaultDayOne;
+          }
+          if (
+            (day.id === 'day-pull' || idx === 1) &&
+            (day.title === 'Day 2: Back, Biceps & Rear Delts (Pull)' || day.title === 'Day 2: Back & Biceps')
+          ) {
+            migrated = true;
+            return defaultDayTwo;
+          }
+          if (
+            (day.id === 'day-legs' || idx === 2) &&
+            day.title === 'Day 3: Quads, Hamstrings & Calves (Legs)'
+          ) {
+            migrated = true;
+            return defaultDayThree;
+          }
+          if (
+            (day.id === 'day-arms-abs' || idx === 3) &&
+            day.title === 'Day 4: Shoulders, Arms & Abs Specialization'
+          ) {
+            migrated = true;
+            return defaultDayFour;
+          }
+          return day;
+        }),
+      };
+    });
+    return { systems: updated, migrated };
+  }
+
+  async loadWorkoutSystems(): Promise<WorkoutSystem[]> {
+    if (!this.isBrowser) return DEFAULT_WORKOUT_SYSTEMS;
+    try {
+      const idbVal = await get<WorkoutSystem[]>('osama_workout_systems');
+      if (idbVal && Array.isArray(idbVal) && idbVal.length > 0) {
+        const { systems, migrated } = this.migrateDaysIfNeeded(idbVal);
+        if (migrated) {
+          await this.saveWorkoutSystems(systems);
+        }
+        return systems;
+      }
+
+      const lsVal = localStorage.getItem('osama_workout_systems');
+      if (lsVal) {
+        const parsed = JSON.parse(lsVal);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const { systems, migrated } = this.migrateDaysIfNeeded(parsed);
+          if (migrated) {
+            await this.saveWorkoutSystems(systems);
+          }
+          return systems;
+        }
+      }
+    } catch (e) {
+      console.warn('Error reading workout systems', e);
+    }
+    return DEFAULT_WORKOUT_SYSTEMS;
+  }
+
+  async saveWorkoutSystems(systems: WorkoutSystem[]): Promise<void> {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem('osama_workout_systems', JSON.stringify(systems));
+      await set('osama_workout_systems', systems);
+    } catch (e) {
+      console.warn('Error saving workout systems', e);
+    }
+  }
+
+  private migrateMealSystemsIfNeeded(systems: MealSystem[]): { systems: MealSystem[]; migrated: boolean } {
+    let migrated = false;
+    const hasOptions = systems.some((s) => s.meals.some((m) => m.options && m.options.length > 0));
+    const hasBothRoutines =
+      systems.length >= 2 &&
+      systems.some((s) => s.id === 'routine-morning-training') &&
+      systems.some((s) => s.id === 'routine-evening-training');
+
+    const serialized = JSON.stringify(systems).toLowerCase();
+    const hasOldFoods =
+      serialized.includes('salmon') ||
+      serialized.includes('quick oats') ||
+      serialized.includes('sourdough') ||
+      serialized.includes('whey');
+    const hasEgyptianPlan =
+      serialized.includes('areesh') &&
+      serialized.includes('ful') &&
+      serialized.includes('baladi');
+
+    if (!hasOptions || !hasBothRoutines || hasOldFoods || !hasEgyptianPlan) {
+      migrated = true;
+      return { systems: DEFAULT_MEAL_SYSTEMS, migrated };
+    }
+    return { systems, migrated: false };
+  }
+
+  async loadMealSystems(): Promise<MealSystem[]> {
+    if (!this.isBrowser) return DEFAULT_MEAL_SYSTEMS;
+    try {
+      const idbVal = await get<MealSystem[]>('osama_meal_systems');
+      if (idbVal && Array.isArray(idbVal) && idbVal.length > 0) {
+        const { systems, migrated } = this.migrateMealSystemsIfNeeded(idbVal);
+        if (migrated) {
+          await this.saveMealSystems(systems);
+        }
+        return systems;
+      }
+
+      const lsVal = localStorage.getItem('osama_meal_systems');
+      if (lsVal) {
+        const parsed = JSON.parse(lsVal);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const { systems, migrated } = this.migrateMealSystemsIfNeeded(parsed);
+          if (migrated) {
+            await this.saveMealSystems(systems);
+          }
+          return systems;
+        }
+      }
+    } catch (e) {
+      console.warn('Error reading meal systems', e);
+    }
+    return DEFAULT_MEAL_SYSTEMS;
+  }
+
+  async saveMealSystems(mealSystems: MealSystem[]): Promise<void> {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem('osama_meal_systems', JSON.stringify(mealSystems));
+      await set('osama_meal_systems', mealSystems);
+    } catch (e) {
+      console.warn('Error saving meal systems', e);
+    }
+  }
+
+  async loadWalkingSessions(): Promise<WalkingSession[]> {
+    if (!this.isBrowser) return DEFAULT_WALKING_SESSIONS;
+    try {
+      const idbVal = await get<WalkingSession[]>('osama_walking_sessions');
+      if (idbVal && Array.isArray(idbVal)) return idbVal;
+
+      const lsVal = localStorage.getItem('osama_walking_sessions');
+      if (lsVal) {
+        const parsed = JSON.parse(lsVal);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.warn('Error reading walking sessions', e);
+    }
+    return DEFAULT_WALKING_SESSIONS;
+  }
+
+  async saveWalkingSessions(sessions: WalkingSession[]): Promise<void> {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem('osama_walking_sessions', JSON.stringify(sessions));
+      await set('osama_walking_sessions', sessions);
+    } catch (e) {
+      console.warn('Error saving walking sessions', e);
+    }
+  }
+
+  async loadWorkoutLogs(): Promise<CompletedSessionLog[]> {
+    if (!this.isBrowser) return DEFAULT_WORKOUT_LOGS;
+    try {
+      const idbVal = await get<CompletedSessionLog[]>('osama_workout_logs');
+      if (idbVal && Array.isArray(idbVal)) return idbVal;
+
+      const lsVal = localStorage.getItem('osama_workout_logs');
+      if (lsVal) {
+        const parsed = JSON.parse(lsVal);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.warn('Error reading workout logs', e);
+    }
+    return DEFAULT_WORKOUT_LOGS;
+  }
+
+  async saveWorkoutLogs(logs: CompletedSessionLog[]): Promise<void> {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem('osama_workout_logs', JSON.stringify(logs));
+      await set('osama_workout_logs', logs);
+    } catch (e) {
+      console.warn('Error saving workout logs', e);
+    }
+  }
+
+  async loadBoxingWorkouts(): Promise<BoxingWorkout[]> {
+    if (!this.isBrowser) return DEFAULT_BOXING_WORKOUTS;
+    try {
+      const idbVal = await get<BoxingWorkout[]>('osama_boxing_workouts');
+      if (idbVal && Array.isArray(idbVal) && idbVal.length > 0) {
+        const normalized = this.normalizeBoxingWorkouts(idbVal);
+        const { workouts, migrated } = this.migrateBoxingWorkoutsIfNeeded(normalized);
+        if (migrated) {
+          await this.saveBoxingWorkouts(workouts);
+        }
+        return workouts;
+      }
+
+      const lsVal = localStorage.getItem('osama_boxing_workouts');
+      if (lsVal) {
+        const parsed = JSON.parse(lsVal);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const normalized = this.normalizeBoxingWorkouts(parsed);
+          const { workouts, migrated } = this.migrateBoxingWorkoutsIfNeeded(normalized);
+          if (migrated) {
+            await this.saveBoxingWorkouts(workouts);
+          }
+          return workouts;
+        }
+      }
+    } catch (e) {
+      console.warn('Error reading boxing workouts', e);
+    }
+    return DEFAULT_BOXING_WORKOUTS;
+  }
+
+  async saveBoxingWorkouts(workouts: BoxingWorkout[]): Promise<void> {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem('osama_boxing_workouts', JSON.stringify(workouts));
+      await set('osama_boxing_workouts', workouts);
+    } catch (e) {
+      console.warn('Error saving boxing workouts', e);
+    }
+  }
+
+  async loadBoxingLogs(): Promise<CompletedBoxingLog[]> {
+    if (!this.isBrowser) return DEFAULT_BOXING_LOGS;
+    try {
+      const idbVal = await get<CompletedBoxingLog[]>('osama_boxing_logs');
+      if (idbVal && Array.isArray(idbVal)) return idbVal;
+
+      const lsVal = localStorage.getItem('osama_boxing_logs');
+      if (lsVal) {
+        const parsed = JSON.parse(lsVal);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.warn('Error reading boxing logs', e);
+    }
+    return DEFAULT_BOXING_LOGS;
+  }
+
+  async saveBoxingLogs(logs: CompletedBoxingLog[]): Promise<void> {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem('osama_boxing_logs', JSON.stringify(logs));
+      await set('osama_boxing_logs', logs);
+    } catch (e) {
+      console.warn('Error saving boxing logs', e);
+    }
+  }
+
+  async loadNutritionLogs(): Promise<CompletedNutritionLog[]> {
+    if (!this.isBrowser) return DEFAULT_NUTRITION_LOGS;
+    try {
+      const idbVal = await get<CompletedNutritionLog[]>('osama_nutrition_logs');
+      if (idbVal && Array.isArray(idbVal)) return idbVal;
+
+      const lsVal = localStorage.getItem('osama_nutrition_logs');
+      if (lsVal) {
+        const parsed = JSON.parse(lsVal);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.warn('Error reading nutrition logs', e);
+    }
+    return DEFAULT_NUTRITION_LOGS;
+  }
+
+  async saveNutritionLogs(logs: CompletedNutritionLog[]): Promise<void> {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem('osama_nutrition_logs', JSON.stringify(logs));
+      await set('osama_nutrition_logs', logs);
+    } catch (e) {
+      console.warn('Error saving nutrition logs', e);
+    }
+  }
+
+  // Full Database Backup Export as JSON file
+  exportFullBackup(payload: {
+    settings: AppSettings;
+    workoutSystems: WorkoutSystem[];
+    mealSystems: MealSystem[];
+    walkingSessions: WalkingSession[];
+    workoutLogs: CompletedSessionLog[];
+    boxingWorkouts?: BoxingWorkout[];
+    boxingLogs?: CompletedBoxingLog[];
+    nutritionLogs?: CompletedNutritionLog[];
+  }) {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(payload, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute(
+      'download',
+      `osama_gym_backup_${new Date().toISOString().slice(0, 10)}.json`
+    );
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  }
+
+  // Restore from imported JSON
+  async importFullBackup(jsonText: string): Promise<boolean> {
+    try {
+      const data = JSON.parse(jsonText);
+      if (data.settings) await this.saveSettings(data.settings);
+      if (data.workoutSystems) await this.saveWorkoutSystems(data.workoutSystems);
+      if (data.mealSystems) await this.saveMealSystems(data.mealSystems);
+      if (data.walkingSessions) await this.saveWalkingSessions(data.walkingSessions);
+      if (data.workoutLogs) await this.saveWorkoutLogs(data.workoutLogs);
+      if (data.boxingWorkouts) await this.saveBoxingWorkouts(data.boxingWorkouts);
+      if (data.boxingLogs) await this.saveBoxingLogs(data.boxingLogs);
+      if (data.nutritionLogs) await this.saveNutritionLogs(data.nutritionLogs);
+      return true;
+    } catch (e) {
+      console.error('Failed to parse backup JSON', e);
+      return false;
+    }
+  }
+}
+
+export const localDb = new LocalGymDatabase();
